@@ -1,11 +1,7 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "./sequelize";
 
-export enum UserRole {
-  ADMIN = "admin",
-  ANALYST = "analyst",
-  VIEWER = "viewer",
-}
+export type UserRole = "admin" | "analyst" | "viewer";
 
 export interface UserAttributes {
   id: number;
@@ -58,9 +54,9 @@ User.init(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM(...Object.values(UserRole)),
+      type: DataTypes.ENUM("admin", "analyst", "viewer"),
       allowNull: false,
-      defaultValue: UserRole.VIEWER,
+      defaultValue: "viewer",
     },
     isActive: { 
         type: DataTypes.BOOLEAN, 
