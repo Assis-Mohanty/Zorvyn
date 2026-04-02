@@ -2,7 +2,9 @@
 import dotenv from 'dotenv';
 
 type ServerConfig = {
-    PORT: number
+    PORT: number,
+    SALT:number 
+
 }
 type DbConfig={
     DB_HOST:string,
@@ -19,7 +21,9 @@ function loadEnv() {
 loadEnv();
 
 export const serverConfig: ServerConfig = {
-    PORT: Number(process.env.PORT) || 3001
+    PORT: Number(process.env.PORT) || 3001,
+    SALT:Number(process.env.SALT) || 10
+
 };
 
 export const dbConfig:DbConfig={
