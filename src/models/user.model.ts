@@ -1,0 +1,76 @@
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "./sequelize";
+
+export enum UserRole {
+  ADMIN = "admin",
+  ANALYST = "analyst",
+  VIEWER = "viewer",
+}
+
+export interface UserAttributes {
+  id: number;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: UserRole;
+  isActive: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+  deletedAt?: Date | null;
+}
+
+interface UserCreationAttributes extends Optional<
+  UserAttributes,
+  "id" | "isActive" | "deletedAt"
+> {}
+
+export class User
+  extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes
+{
+  public id!: number;
+  public name!: string;
+  public email!: string;
+  public passwordHash!: string;
+  public role!: UserRole;
+  public isActive!: boolean;
+  public deletedAt!: Date | null;
+}
+
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    passwordHash: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM(...Object.values(UserRole)),
+      allowNull: false,
+      defaultValue: UserRole.VIEWER,
+    },
+    isActive: { 
+        type: DataTypes.BOOLEAN, 
+        defaultValue: true },
+    deletedAt: { type: DataTypes.DATE, allowNull: true, defaultValue: null },
+  },
+  {
+    sequelize,
+    tableName: "users",
+    paranoid: true,
+    timestamps: true,
+  },
+);
