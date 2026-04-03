@@ -47,7 +47,7 @@ export class UserRepository implements IUserRepository {
         await newUser.save();
         return;
     }
-
+    // this is soft delete 
     async delete(id: number): Promise<void> {
         const user = await User.findByPk(id);
         if (!user) {
@@ -55,5 +55,10 @@ export class UserRepository implements IUserRepository {
         }
         await user.destroy();
     }
-}
+    // this is hard delete from database    
+    async hardDelete(id: number): Promise<void> {
+        await User.destroy({ where: { id }, force: true });
+        return;
+    }
     
+}
