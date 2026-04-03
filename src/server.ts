@@ -6,7 +6,6 @@ import { appErrorHandler, genericErrorHandler } from './middlewares/error.middle
 import logger from './config/logger.config';
 import { attachCorrelationIdMiddleware } from './middlewares/correlation.middleware';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import { rateLimiter } from './utils/ratelimiter';
 const app = express();
 

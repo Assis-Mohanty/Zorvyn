@@ -134,8 +134,8 @@ export class FinancialRecordRepository implements IFinancialRecordRepository{
       [fn('SUM', col('amount')), 'total'],
       [fn('COUNT', col('id')),   'count'],   // I used Ai for logic builiding of this function
     ], 
-    group: ["DATE_FORMAT(date, '%Y-%u')", 'type'],
-    order: [[literal("DATE_FORMAT(date, '%Y-%u')"), 'ASC']],
+    group: ["DATE_FORMAT(date, '%Y-%m')", 'type'],
+    order: [[literal("DATE_FORMAT(date, '%Y-%m')"), 'ASC']],
     raw: true,
   });
     }

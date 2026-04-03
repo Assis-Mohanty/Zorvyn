@@ -53,4 +53,5 @@ export class FinancialRecordService implements IFinancialRecordService {
     async findFinancialRecordsByUserId(userId:number){
         return await FinancialRecord.findAll({where:{userId}});
     }
-}   
+}
+
