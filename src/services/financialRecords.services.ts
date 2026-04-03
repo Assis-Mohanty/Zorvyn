@@ -1,6 +1,6 @@
 import { CreateFinancialRecordDTO, IFinancialRecord, UpdateFinancialRecordDTO } from "../dto/financeRecords.dto";
 import { FinancialRecord } from "../models/finance.model";
-import { IFinancialRecordRepository } from "../repositories/financeRecords.repository";
+import { IFinancialRecordRepository, TrendFilters } from "../repositories/financeRecords.repository";
 
 export interface IFinancialRecordService {
     create(record: CreateFinancialRecordDTO): Promise<void>;
@@ -40,6 +40,15 @@ export class FinancialRecordService implements IFinancialRecordService {
     }
     async monthlyTrend(filters: { userId?: number, type?: "income" | "expense", category?: string, date?: Date }): Promise<{ month: string, total: number }[]> {
         return await this.financialRecordRepository.monthlyTrend(filters);
+    }
+    async getWeeklyTrend(filters: TrendFilters): Promise<IFinancialRecord[]> {      
+        return await this.financialRecordRepository.getWeeklyTrend(filters);
+    }
+    async getRecentActivity(limit?: number): Promise<IFinancialRecord[]> {
+        return await this.financialRecordRepository.getRecentActivity(limit);
+    }
+    async getMonthlyTrend(filters: TrendFilters): Promise<IFinancialRecord[]> {
+        return await this.financialRecordRepository.getMonthlyTrend(filters);
     }
     async findFinancialRecordsByUserId(userId:number){
         return await FinancialRecord.findAll({where:{userId}});

@@ -2,10 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { UserService } from "../services/user.services";
 import { UpdateUserDTO } from "../dto/user.dto";
 import { UserRepository } from "../repositories/user.reposiories";
+import { getUserIdByJwt } from "../utils/helpers/getUserIdByJwt.helper";
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);  
-
-
 
 export async function registerUser(req: Request, res: Response, next: NextFunction) {
     try {
@@ -28,11 +27,23 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
         }
 }
 
-    export async function updateUser(req: Request, res: Response, next: NextFunction){
+export async function updateUserById(req: Request, res: Response, next: NextFunction){
         try {
             const { id } = req.params;
             const { name, email, password, role } = req.body as UpdateUserDTO;
             await userService.update(Number(id), { name, email, password, role });
+            res.status(200).json({ message: "user updated successfully", success: true });
+        } catch (error) {
+            next(error);
+        }
+}
+
+export async function updateUser(req: Request, res: Response, next: NextFunction){
+        try {
+            const token = req.headers.authorization?.split(" ")[1];
+            const userId = await getUserIdByJwt(token as string, process.env.JWT_SECRET as string);
+            const { name, email, password, role } = req.body as UpdateUserDTO;
+            await userService.update(userId, { name, email, password, role });
             res.status(200).json({ message: "user updated successfully", success: true });
         } catch (error) {
             next(error);
@@ -59,6 +70,17 @@ export async function findUserById (req: Request, res: Response, next: NextFunct
             next(error);
         }
     }
+
+export async function getMe(req: Request, res: Response, next: NextFunction){
+    try {
+        const token = req.headers.authorization?.split(" ")[1];
+        const userId = await getUserIdByJwt(token as string, process.env.JWT_SECRET as string);
+        const user = await userService.findById(Number(userId));
+        res.status(200).json({ user, success: true });
+    } catch (error) {
+        next(error);
+    }
+}
 
 export async function findAllUsers (req: Request, res: Response, next: NextFunction) {
     try {

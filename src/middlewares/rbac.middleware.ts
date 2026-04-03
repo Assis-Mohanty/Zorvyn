@@ -1,47 +1,19 @@
-import { verifyJWT } from "../utils/helpers/jwt.helper";
+import { Response, NextFunction } from "express";
 
-export const isAdmin = (req: any, res: any, next: any) => {
-  const jwt = req.headers.authorization?.split(" ")[1];
-  if (!jwt) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  try {
-    const payload = verifyJWT(jwt, process.env.JWT_SECRET as string) as any;
-    if (payload.role !== "admin") {
-      return res.status(403).json({ message: "Forbidden" });
+/* here req type is any because we are adding user property to it in auth middleware and user property is not defined in Request type of express,we would have to create a custom type for req to include user property but for simplicity we are using any type here */
+
+export const authorize = (...roles: string[]) => {
+  return (req: any, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-}
-export const isAnalyst = (req: any, res: any, next: any) => {
-  const jwt = req.headers.authorization?.split(" ")[1];
-  if (!jwt) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  try {
-    const payload = verifyJWT(jwt, process.env.JWT_SECRET as string) as any;
-    if (payload.role !== "analyst") {
-      return res.status(403).json({ message: "Forbidden" });
+
+    if (!roles.includes(req.user.role)) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
     }
+
     next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-}
-export const isViewer = (req: any, res: any, next: any) => {
-  const jwt = req.headers.authorization?.split(" ")[1];
-  if (!jwt) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-  try {
-    const payload = verifyJWT(jwt, process.env.JWT_SECRET as string) as any;
-    if (payload.role !== "viewer") {
-      return res.status(403).json({ message: "Forbidden" });
-    }
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-}
+  };
+};

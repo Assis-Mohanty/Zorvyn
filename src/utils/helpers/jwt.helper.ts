@@ -1,6 +1,5 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 
-const SECRET = process.env.JWT_SECRET as string;
 
 export interface JwtPayload {
   userId: number;

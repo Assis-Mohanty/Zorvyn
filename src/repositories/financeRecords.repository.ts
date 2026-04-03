@@ -1,8 +1,9 @@
 // this is the repository for the finance records
 import { CreateFinancialRecordDTO, IFinancialRecord, UpdateFinancialRecordDTO } from "../dto/financeRecords.dto";
 import { FinancialRecord } from "../models/finance.model";
+import { User } from "../models/user.model";
 import { NotFoundError } from "../utils/errors/app.error";
-import { col, fn } from "sequelize";
+import { col, fn, literal, Op,  } from "sequelize";
 
 export interface IFinancialRecordRepository{
     create(record: CreateFinancialRecordDTO): Promise<void>;
@@ -11,10 +12,15 @@ export interface IFinancialRecordRepository{
     update(id: number, record: UpdateFinancialRecordDTO): Promise<void>;
     delete(id: number): Promise<void>;
     filteredList(filters: { userId?: number, type?: "income" | "expense", category?: string, date?: Date }): Promise<IFinancialRecord[]>;
-
-    // DB-level SUM/GROUP BY summary, monthly trend 
     summary(filters: { userId?: number, type?: "income" | "expense", category?: string, date?: Date }): Promise<{ total: number, category: string }[]>;
     monthlyTrend(filters: { userId?: number, type?: "income" | "expense", category?: string, date?: Date }): Promise<{ month: string, total: number }[]>;
+    getWeeklyTrend(filters: TrendFilters):Promise<IFinancialRecord[]>;
+    getRecentActivity(limit?: number): Promise<IFinancialRecord[]>;
+    getMonthlyTrend(filters: TrendFilters): Promise<IFinancialRecord[]>;
+}
+export interface TrendFilters {
+  startDate: string; // 'YYYY-MM-DD'
+  endDate: string;   // 'YYYY-MM-DD'
 }
 
 export class FinancialRecordRepository implements IFinancialRecordRepository{
@@ -69,9 +75,68 @@ export class FinancialRecordRepository implements IFinancialRecordRepository{
         }
         async monthlyTrend(filters: { userId?: number, type?: "income" | "expense", category?: string, date?: Date }): Promise<{ month: string, total: number }[]> {
             const rows = await FinancialRecord.findAll({ where: filters,
-                attributes: ['date', [fn('SUM', col('amount')), 'total']],
+                attributes: ['date', 
+                    [fn('SUM', col('amount')), 
+                        'total']],
                 group: ['date']}) as any[];
                 const monthlyTrend = rows.map(r => ({ month: r.date.toISOString().split('T')[0], total: parseFloat(r.total) }));
                 return monthlyTrend;
+        }
+
+        async getRecentActivity(limit: number = 10) {
+            return FinancialRecord.findAll({
+                where: { deletedAt: null },
+                order: [['createdAt', 'DESC']],
+                limit,
+                include: [{
+                model: User,
+                as:    'user',
+                attributes: ['id', 'name', 'email'],  
+                }],
+            });
+        }
+        
+
+    
+
+    async getWeeklyTrend(filters: TrendFilters) {
+        return FinancialRecord.findAll({
+            where: {
+            deletedAt: null,
+            date: {
+                [Op.gte]: filters.startDate,
+                [Op.lte]: filters.endDate,
+            },
+            },
+            attributes: [
+            [fn('DATE_FORMAT', col('date'), '%Y-%u'), 'week'],
+            'type',
+            [fn('SUM', col('amount')), 'total'],
+            [fn('COUNT', col('id')),   'count'],
+            ],
+            group: ["DATE_FORMAT(date, '%Y-%u')", 'type'],
+            order: [[literal("DATE_FORMAT(date, '%Y-%u')"), 'ASC']], // I used Ai for logic builiding of this function
+            raw: true,
+        });
+    }
+    async getMonthlyTrend(filters: TrendFilters) {
+  return FinancialRecord.findAll({
+    where: {
+      deletedAt: null,
+      date: {
+        [Op.gte]: filters.startDate,
+        [Op.lte]: filters.endDate,
+      },
+    },
+    attributes: [
+      [fn('DATE_FORMAT', col('date'), '%Y-%m'), 'month'],
+      'type',
+      [fn('SUM', col('amount')), 'total'],
+      [fn('COUNT', col('id')),   'count'],   // I used Ai for logic builiding of this function
+    ], 
+    group: ["DATE_FORMAT(date, '%Y-%u')", 'type'],
+    order: [[literal("DATE_FORMAT(date, '%Y-%u')"), 'ASC']],
+    raw: true,
+  });
     }
 }

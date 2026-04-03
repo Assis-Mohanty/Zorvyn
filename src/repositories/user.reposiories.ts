@@ -61,4 +61,13 @@ export class UserRepository implements IUserRepository {
         await User.destroy({ where: { id }, force: true });
         return;
     }
+
+    async deactivateUser(id:number): Promise<void> {
+        const user = await User.findByPk(id);
+        if (!user) {
+            throw new NotFoundError("User not found");
+        }
+        await user.update({ isActive: false });
+        return;
+    }
 }

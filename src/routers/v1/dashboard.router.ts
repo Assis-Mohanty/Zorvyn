@@ -1,0 +1,10 @@
+import express from 'express';
+import { getMonthlyTrend, getRecentActivity, getWeeklyTrend, summary } from '../../controllers/financialRecord.controller';
+import { authorize, } from '../../middlewares/rbac.middleware';
+import { authenticate } from '../../middlewares/auth.middleware';
+const dashBoardRouter = express.Router();
+dashBoardRouter.get('/summary', authenticate, authorize("analyst,admin,viewer"), summary);
+dashBoardRouter.get('/monthly-trend', authenticate, authorize("analyst,admin,viewer"), getMonthlyTrend);
+dashBoardRouter.get('/weekly-trend', authenticate, authorize("analyst,admin,viewer"), getWeeklyTrend);
+dashBoardRouter.get('/recent-activity', authenticate, authorize("analyst,admin,viewer"), getRecentActivity);
+export default dashBoardRouter;

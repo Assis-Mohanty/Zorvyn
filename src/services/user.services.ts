@@ -2,7 +2,7 @@ import { IUser, RegisterUserDTO, UpdateUserDTO } from "../dto/user.dto";
 import { IUserRepository } from "../repositories/user.reposiories";
 import { NotFoundError, UnauthorizedError } from "../utils/errors/app.error";
 import { generateJWT } from "../utils/helpers/jwt.helper";
-import { compareHashPassword } from "../utils/helpers/hashPassword.helper";
+import { compareHashPassword, HashPassword } from "../utils/helpers/hashPassword.helper";
 
 export interface IUserService {
     //these two functions are for authentication and I created the others for api testing of users
@@ -21,7 +21,14 @@ export class UserService implements IUserService {
         this.userRepository=userRepository
     }
     async Register(user: RegisterUserDTO): Promise<void> {
-        await this.userRepository.Register(user);
+        const passwordHash = await HashPassword(user.password);
+        const userPayload:any = {
+            name:user.name,
+            email:user.email,
+            password:passwordHash,
+            role:user.role
+        }
+        await this.userRepository.Register(userPayload)
         return;
     }
     async Login(email: string, password: string): Promise<string> {
