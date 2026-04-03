@@ -5,8 +5,10 @@ import { generateJWT } from "../utils/helpers/jwt.helper";
 import { compareHashPassword } from "../utils/helpers/hashPassword.helper";
 
 export interface IUserService {
+    //these two functions are for authentication and I created the others for api testing of users
     Register(user: RegisterUserDTO): Promise<void>;
     Login(email: string, password: string): Promise<string>;
+    //these functions are for api testing of users
     findById(id: number): Promise<IUser | null>;
     findByEmail(email: string): Promise<IUser | null>;
     findAll(): Promise<IUser[]>;
@@ -49,5 +51,9 @@ export class UserService implements IUserService {
     }
     async findAll(): Promise<IUser[]> {
         return await this.userRepository.findAll();
+    }
+    async hardDelete(id: number): Promise<void> {
+        await this.userRepository.hardDelete(id);
+        return;
     }
 }

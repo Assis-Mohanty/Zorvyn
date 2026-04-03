@@ -9,6 +9,7 @@ export interface IUserRepository{
     findAll(): Promise<IUser[]>;
     update(id: number, user: UpdateUserDTO): Promise<void>;
     delete(id: number): Promise<void>;
+    hardDelete(id: number): Promise<void>;
 }
 
 export class UserRepository implements IUserRepository {
@@ -60,5 +61,4 @@ export class UserRepository implements IUserRepository {
         await User.destroy({ where: { id }, force: true });
         return;
     }
-    
 }
