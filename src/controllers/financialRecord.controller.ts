@@ -92,3 +92,41 @@ export async function updateFinancialRecord(req: Request, res: Response, next: N
         next(error);
     }
 }
+
+export async function summary(req: Request, res: Response, next: NextFunction) {
+    try {
+        const filters = req.query as { userId?: number, type?: "income" | "expense", category?: string, date?: Date };
+        const summary = await financialRecordService.summary(filters);
+        res.status(200).json({ summary, success: true });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function monthlyTrend(req: Request, res: Response, next: NextFunction) {
+    try {
+        const filters = req.query as { userId?: number, type?: "income" | "expense", category?: string, date?: Date };
+        const trend = await financialRecordService.monthlyTrend(filters);
+        res.status(200).json({ trend, success: true });
+    } catch (error) {
+            next(error);
+    }
+}
+
+export async function findFinancialRecordsByUserId(req: Request, res: Response, next: NextFunction) {
+    try {
+        const { userId } = req.params;
+
+        if (!userId) {
+            throw new BadRequestError("User ID is required");
+        }
+        const records = await financialRecordService.findFinancialRecordsByUserId(Number(userId));
+
+        res.status(200).json({
+            records,
+            success: true
+        });
+    } catch (error) {
+        next(error);
+    }
+}
