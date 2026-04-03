@@ -3,8 +3,8 @@ import { getMonthlyTrend, getRecentActivity, getWeeklyTrend, summary } from '../
 import { authorize, } from '../../middlewares/rbac.middleware';
 import { authenticate } from '../../middlewares/auth.middleware';
 const dashBoardRouter = express.Router();
-dashBoardRouter.get('/summary', authenticate, authorize("analyst,admin,viewer"), summary);
-dashBoardRouter.get('/monthly-trend', authenticate, authorize("analyst,admin,viewer"), getMonthlyTrend);
-dashBoardRouter.get('/weekly-trend', authenticate, authorize("analyst,admin,viewer"), getWeeklyTrend);
-dashBoardRouter.get('/recent-activity', authenticate, authorize("analyst,admin,viewer"), getRecentActivity);
+dashBoardRouter.get('/summary', authenticate, authorize("analyst","admin"), summary);
+dashBoardRouter.get('/monthly-trend', authenticate, authorize("analyst", "admin"), getMonthlyTrend);
+dashBoardRouter.get('/weekly-trend', authenticate, authorize("analyst", "admin", ), getWeeklyTrend);
+dashBoardRouter.get('/recent-activity', authenticate, authorize("analyst", "admin", ), getRecentActivity);
 export default dashBoardRouter;

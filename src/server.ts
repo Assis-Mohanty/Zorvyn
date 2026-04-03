@@ -5,9 +5,22 @@ import v2Router from './routers/v2/index.router';
 import { appErrorHandler, genericErrorHandler } from './middlewares/error.middleware';
 import logger from './config/logger.config';
 import { attachCorrelationIdMiddleware } from './middlewares/correlation.middleware';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { rateLimiter } from './utils/ratelimiter';
 const app = express();
 
 app.use(express.json());
+
+app.use(attachCorrelationIdMiddleware)
+
+app.use(helmet())
+
+
+app.use(rateLimiter)
+
+app.use(express.json())
+
 
 /**
  * Registering all the routers and their corresponding routes with out app server object.
