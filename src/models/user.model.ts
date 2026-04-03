@@ -7,7 +7,7 @@ export interface UserAttributes {
   id: number;
   name: string;
   email: string;
-  passwordHash: string;
+  password: string;
   role: UserRole;
   isActive: boolean;
   createdAt?: Date;
@@ -27,7 +27,7 @@ export class User
   public id!: number;
   public name!: string;
   public email!: string;
-  public passwordHash!: string;
+  public password!: string;
   public role!: UserRole;
   public isActive!: boolean;
   public deletedAt!: Date | null;
@@ -49,7 +49,7 @@ User.init(
       allowNull: false,
       unique: true,
     },
-    passwordHash: {
+    password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
